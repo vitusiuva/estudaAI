@@ -21,6 +21,9 @@
                     <x-nav-link :href="route('study-logs.index')" :active="request()->routeIs('study-logs.*')">
                         {{ __('Histórico') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('revisions.index')" :active="request()->routeIs('revisions.*')">
+                        {{ __('Revisões') }}
+                    </x-nav-link>
                 </div>
             </div>
 

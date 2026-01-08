@@ -19,6 +19,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('disciplines', DisciplineController::class);
     Route::resource('study-logs', StudyLogController::class);
     Route::resource('topics', TopicController::class);
+    Route::resource('revisions', RevisionController::class);
     
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
