@@ -52,3 +52,6 @@ O **estudaAI** é uma plataforma de organização de estudos desenvolvida em Lar
 
 ---
 Desenvolvido com foco em produtividade e organização.
+
+---
+*Última atualização de estabilidade: 09/01/2026 - Correção de ordem de migrations.*
