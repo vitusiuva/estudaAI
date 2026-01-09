@@ -24,23 +24,33 @@
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
-                        @foreach($discipline->topics as $topic)
+                        @forelse($discipline->topics as $topic)
                         <tr>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $topic->name }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-center">
-                                <input type="checkbox" {{ $topic->is_studied ? 'checked' : '' }} class="rounded text-indigo-600 focus:ring-indigo-500" disabled>
+                                <span class="px-2 py-1 rounded text-xs {{ $topic->is_studied ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' }}">
+                                    {{ $topic->is_studied ? 'Sim' : 'Não' }}
+                                </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-center">
-                                <input type="checkbox" {{ $topic->is_revised_1x ? 'checked' : '' }} class="rounded text-green-600 focus:ring-green-500" disabled>
+                                <span class="px-2 py-1 rounded text-xs {{ $topic->is_revised_1x ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' }}">
+                                    {{ $topic->is_revised_1x ? 'Sim' : 'Não' }}
+                                </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-center">
-                                <input type="checkbox" {{ $topic->is_revised_2x ? 'checked' : '' }} class="rounded text-orange-600 focus:ring-orange-500" disabled>
+                                <span class="px-2 py-1 rounded text-xs {{ $topic->is_revised_2x ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' }}">
+                                    {{ $topic->is_revised_2x ? 'Sim' : 'Não' }}
+                                </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                 <button onclick="openStudyModal({{ $topic->id }}, '{{ $topic->name }}')" class="text-indigo-600 hover:text-indigo-900">Registrar Estudo</button>
                             </td>
                         </tr>
-                        @endforeach
+                        @empty
+                        <tr>
+                            <td colspan="5" class="px-6 py-4 text-center text-gray-500">Nenhum tópico cadastrado.</td>
+                        </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
@@ -48,11 +58,11 @@
     </div>
 
     <!-- Modal Novo Tópico -->
-    <div id="new-topic-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">
+    <div id="new-topic-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
         <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-            <div class="mt-3 text-center">
-                <h3 class="text-lg leading-6 font-medium text-gray-900">Novo Tópico</h3>
-                <form action="{{ route('topics.store') }}" method="POST" class="mt-4 text-left">
+            <div class="mt-3">
+                <h3 class="text-lg leading-6 font-medium text-gray-900 text-center">Novo Tópico</h3>
+                <form action="{{ route('topics.store') }}" method="POST" class="mt-4">
                     @csrf
                     <input type="hidden" name="discipline_id" value="{{ $discipline->id }}">
                     <div class="mb-4">
@@ -68,15 +78,14 @@
         </div>
     </div>
 
-    <!-- Modal Registro de Estudo (Simplificado) -->
-    <div id="study-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">
+    <!-- Modal Registro de Estudo -->
+    <div id="study-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
         <div class="relative top-20 mx-auto p-5 border w-1/2 shadow-lg rounded-md bg-white">
             <div class="mt-3">
                 <h3 class="text-lg leading-6 font-medium text-gray-900 text-center" id="modal-topic-name">Registrar Estudo</h3>
                 <form action="{{ route('study-logs.store') }}" method="POST" class="mt-4">
                     @csrf
                     <input type="hidden" name="topic_id" id="modal-topic-id">
-                    <input type="hidden" name="studied_at" value="{{ now() }}">
                     
                     <div class="grid grid-cols-2 gap-4">
                         <div class="mb-4">
