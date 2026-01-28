@@ -10,6 +10,7 @@ return new class extends Migration
     {
         Schema::create('revisions', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('topic_id')->constrained()->onDelete('cascade');
             $table->date('scheduled_date');
             $table->enum('status', ['pendente', 'concluida', 'atrasada', 'ignorada'])->default('pendente');
