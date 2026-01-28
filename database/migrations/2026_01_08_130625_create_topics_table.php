@@ -12,6 +12,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('discipline_id')->constrained()->onDelete('cascade');
             $table->string('name');
+            $table->enum('status', ['pendente', 'in_progress', 'concluido'])->default('pendente');
             $table->boolean('is_studied')->default(false);
             $table->boolean('is_revised_1x')->default(false);
             $table->boolean('is_revised_2x')->default(false);
