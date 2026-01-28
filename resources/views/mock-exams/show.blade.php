@@ -7,7 +7,7 @@
                 </a>
                 <div>
                     <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $mockExam->title }}</h2>
-                    <p class="text-sm text-gray-500 dark:text-gray-400">{{ \Carbon\Carbon::parse($mockExam->date)->format('d/m/Y') }} • {{ $mockExam->exam_board }}</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">{{ \Carbon\Carbon::parse($mockExam->date)->format("d/m/Y") }} {{ $mockExam->exam_board }}</p>
                 </div>
             </div>
             <div class="mt-4 md:mt-0">

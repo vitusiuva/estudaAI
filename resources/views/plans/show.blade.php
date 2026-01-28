@@ -2,7 +2,7 @@
     <x-slot name="header">
         <div class="flex flex-col md:flex-row md:items-center md:justify-between">
             <div class="flex items-center">
-                <a href="{{ route('plans.index') }}" class="mr-4 p-2 rounded-full bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-700 text-gray-500 hover:text-indigo-600 transition-colors">
+                <a href="{{route('plans.index')}}" class="mr-4 p-2 rounded-full bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-700 text-gray-500 hover:text-indigo-600 transition-colors">
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
                 </a>
                 <div>
@@ -71,7 +71,7 @@
                                     <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{ $discipline->topics->count() }} tópicos no edital</p>
                                 </div>
                                 <div class="flex space-x-2">
-                                    <form action="{{ route('disciplines.destroy', $discipline) }}" method="POST" onsubmit="return confirm('Remover esta disciplina?')">
+                                    <form action="{{route('disciplines.destroy', $discipline)}}" method="POST" onsubmit="return confirm('Remover esta disciplina?')">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="p-2 text-gray-400 hover:text-red-500 transition-colors">
@@ -87,7 +87,7 @@
                                         <div class="bg-indigo-600 h-1.5 rounded-full" style="width: 0%"></div>
                                     </div>
                                 </div>
-                                <a href="{{ route('disciplines.show', $discipline) }}" class="inline-flex items-center px-3 py-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 text-xs font-bold hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-all">
+                                <a href="{{route('disciplines.show', $discipline)}}" class="inline-flex items-center px-3 py-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 text-xs font-bold hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-all">
                                     Edital Verticalizado
                                     <svg class="w-3 h-3 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
                                 </a>

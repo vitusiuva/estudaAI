@@ -6,7 +6,7 @@
                 <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Aqui está o resumo do seu progresso nos estudos.</p>
             </div>
             <div class="mt-4 md:mt-0 flex space-x-3">
-                <a href="{{ route(\'plans.index\') }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-bold rounded-lg hover:bg-indigo-700 transition-all">
+                <a href="{{ route('plans.index') }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-bold rounded-lg hover:bg-indigo-700 transition-all">
                     Ver Meus Planos
                 </a>
             </div>
@@ -64,12 +64,12 @@
                 <div class="flex items-end justify-between h-48 px-2">
                     @foreach($last7Days as $data)
                     <div class="flex flex-col items-center w-full">
-                        <div class="w-8 bg-indigo-500 rounded-t-lg transition-all hover:bg-indigo-600 relative group" style="height: {{ ($data[\'hours\'] / max($last7Days->pluck(\'hours\')->max(), 1)) * 100 }}%">
+                        <div class="w-8 bg-indigo-500 rounded-t-lg transition-all hover:bg-indigo-600 relative group" style="height: {{ ($data['hours'] / max($last7Days->pluck('hours')->max(), 1)) * 100 }}%">
                             <div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                                {{ $data[\'hours\'] }}h
+                                {{ $data['hours'] }}h
                             </div>
                         </div>
-                        <span class="text-[10px] font-bold text-gray-400 mt-2">{{ $data[\'day\'] }}</span>
+                        <span class="text-[10px] font-bold text-gray-400 mt-2">{{ $data['day'] }}</span>
                     </div>
                     @endforeach
                 </div>
@@ -86,7 +86,7 @@
                             <span class="text-gray-500">{{ round($stat->total_minutes / 60, 1) }}h</span>
                         </div>
                         <div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2">
-                            <div class="bg-indigo-500 h-2 rounded-full" style="width: {{ ($stat->total_minutes / max($disciplineStats->max(\'total_minutes\'), 1)) * 100 }}%"></div>
+                            <div class="bg-indigo-500 h-2 rounded-full" style="width: {{ ($stat->total_minutes / max($disciplineStats->max('total_minutes'), 1)) * 100 }}%"></div>
                         </div>
                     </div>
                     @endforeach
