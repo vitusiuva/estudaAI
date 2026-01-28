@@ -22,8 +22,8 @@
                         </span>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-center">
-                        <div class="text-sm text-gray-900 dark:text-white">
-                            {{ $revision->scheduled_date->format('d/m/Y') }}
+                        <div class="text-xs font-bold {{ $revision->scheduled_date->isToday() ? 'text-amber-500' : 'text-gray-400' }}">
+                            {{ $revision->scheduled_date->isToday() ? 'Hoje' : $revision->scheduled_date->format('d/m') }}
                         </div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">

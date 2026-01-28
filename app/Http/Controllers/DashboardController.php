@@ -24,9 +24,10 @@ class DashboardController extends Controller
         $totalHours = round($totalMinutes / 60, 1);
 
         // 2. Estatísticas de Desempenho (Acertos/Erros)
+        
         $totalQuestions = StudyLog::where('user_id', $user->id)->sum('questions_total');
         $totalCorrect = StudyLog::where('user_id', $user->id)->sum('questions_correct');
-        $accuracy = $totalQuestions > 0 ? round(($totalCorrect / $totalQuestions) * 100, 1) : 0;
+        $precision = $totalQuestions > 0 ? round(($totalCorrect / $totalQuestions) * 100, 1) : 0;
 
         // 3. Horas Estudadas por Dia (Últimos 7 dias)
         $studyLogs = StudyLog::where('user_id', $user->id)
@@ -71,7 +72,7 @@ class DashboardController extends Controller
 
         return view('dashboard', [
             'totalHours' => $totalHours,
-            'accuracy' => $accuracy,
+            'precision' => $precision,
             'pendingRevisionsCount' => $pendingRevisions->count(),
             'studyData' => $studyData,
             'pendingRevisions' => $pendingRevisions,
