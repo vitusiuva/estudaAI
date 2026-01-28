@@ -28,7 +28,7 @@
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         @if($revision->status == 'pendente')
-                            <form action="{{ route('revisions.update', $revision) }}" method="POST">
+                            <form action="{{ route('revisions.update', $revision)}" method="POST">
                                 @csrf
                                 @method('PATCH')
                                 <button type="submit" class="px-3 py-1.5 rounded-lg bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-700 transition-all">
