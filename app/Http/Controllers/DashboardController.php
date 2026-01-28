@@ -4,11 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\StudyLog;
 use App\Models\Revision;
-use App\Models\MockExam;
-use App\Models\Plan;
-use Illuminate\Http\Request;
+use App\Models\Topic;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
@@ -16,70 +14,68 @@ class DashboardController extends Controller
     public function index()
     {
         $user = Auth::user();
+        if (!$user) {
+            return redirect()->route('login');
+        }
         $today = Carbon::today();
 
-        // Estatísticas Gerais
-        $totalMinutes = StudyLog::where(\'user_id\', $user->id)->sum(\'duration_minutes\');
+        // 1. Estatísticas Gerais
+        $totalMinutes = StudyLog::where('user_id', $user->id)->sum('duration_minutes');
         $totalHours = round($totalMinutes / 60, 1);
-        
-        $questionsCorrect = StudyLog::where(\'user_id\', $user->id)->sum(\'questions_correct\');
-        $questionsTotal = StudyLog::where(\'user_id\', $user->id)->sum(\'questions_total\');
-        $precision = $questionsTotal > 0 ? round(($questionsCorrect / $questionsTotal) * 100, 1) : 0;
 
-        $pendingRevisionsCount = Revision::where(\'user_id\', $user->id)
-            ->where(\'status\', \'pendente\')
-            ->whereDate(\'scheduled_date\', \'<=\', $today)
-            ->count();
+        // 2. Estatísticas de Desempenho (Acertos/Erros)
+        $totalQuestions = StudyLog::where('user_id', $user->id)->sum('questions_total');
+        $totalCorrect = StudyLog::where('user_id', $user->id)->sum('questions_correct');
+        $accuracy = $totalQuestions > 0 ? round(($totalCorrect / $totalQuestions) * 100, 1) : 0;
 
-        // Dados para o Gráfico de Horas (Últimos 7 dias)
-        $last7Days = collect();
+        // 3. Horas Estudadas por Dia (Últimos 7 dias)
+        $studyLogs = StudyLog::where('user_id', $user->id)
+            ->where('created_at', '>=', $today->copy()->subDays(6))
+            ->select(
+                DB::raw('DATE(created_at) as date'),
+                DB::raw('SUM(duration_minutes) as minutes')
+            )
+            ->groupBy('date')
+            ->orderBy('date', 'asc')
+            ->get();
+
+        $studyData = [];
         for ($i = 6; $i >= 0; $i--) {
-            $date = Carbon::today()->subDays($i);
-            $minutes = StudyLog::where(\'user_id\', $user->id)
-                ->whereDate(\'studied_at\', $date)
-                ->sum(\'duration_minutes\');
-            
-            $last7Days->push([
-                \'day\' => $date->format(\'d/m\'),
-                \'hours\' => round($minutes / 60, 1)
-            ]);
+            $date = $today->copy()->subDays($i)->format('Y-m-d');
+            $logForDate = $studyLogs->firstWhere('date', $date);
+            $minutes = $logForDate ? $logForDate->minutes : 0;
+            $studyData[] = [
+                'day' => $today->copy()->subDays($i)->format('D'),
+                'minutes' => $minutes,
+                'hours' => round($minutes / 60, 1)
+            ];
         }
 
-        // Atividades Recentes
-        $recentLogs = StudyLog::where(\'user_id\', $user->id)
-            ->with(\'topic.discipline\')
-            ->orderBy(\'studied_at\', \'desc\')
-            ->limit(5)
+        // 4. Revisões Pendentes
+        $pendingRevisions = Revision::where('user_id', $user->id)
+            ->where('scheduled_date', '<=', $today)
+            ->whereNull('completed_at')
+            ->with('topic.discipline')
+            ->orderBy('scheduled_date', 'asc')
             ->get();
 
-        // Próximas Revisões
-        $upcomingRevisions = Revision::where(\'user_id\', $user->id)
-            ->where(\'status\', \'pendente\')
-            ->whereDate(\'scheduled_date\', \'>=\', $today)
-            ->with(\'topic.discipline\')
-            ->orderBy(\'scheduled_date\', \'asc\')
-            ->limit(5)
-            ->get();
+        // 5. Tópicos em Progresso
+        $topicsInProgress = Topic::whereHas('discipline.plan', function ($query) use ($user) {
+            $query->where('user_id', $user->id);
+        })
+        ->where('status', 'in_progress')
+        ->with('discipline')
+        ->latest()
+        ->take(5)
+        ->get();
 
-        // Desempenho por Disciplina (Top 5)
-        $disciplineStats = DB::table(\'study_logs\')
-            ->join(\'topics\', \'study_logs.topic_id\', \'=\', \'topics.id\')
-            ->join(\'disciplines\', \'topics.discipline_id\', \'=\', \'disciplines.id\')
-            ->select(\'disciplines.name\', DB::raw(\'SUM(duration_minutes) as total_minutes\'))
-            ->where(\'study_logs.user_id\', $user->id)
-            ->groupBy(\'disciplines.id\', \'disciplines.name\')
-            ->orderBy(\'total_minutes\', \'desc\')
-            ->limit(5)
-            ->get();
-
-        return view(\'dashboard\', compact(
-            \'totalHours\', 
-            \'precision\', 
-            \'pendingRevisionsCount\', 
-            \'last7Days\', 
-            \'recentLogs\', 
-            \'upcomingRevisions\',
-            \'disciplineStats\'
-        ));
+        return view('dashboard', [
+            'totalHours' => $totalHours,
+            'accuracy' => $accuracy,
+            'pendingRevisionsCount' => $pendingRevisions->count(),
+            'studyData' => $studyData,
+            'pendingRevisions' => $pendingRevisions,
+            'topicsInProgress' => $topicsInProgress,
+        ]);
     }
 }

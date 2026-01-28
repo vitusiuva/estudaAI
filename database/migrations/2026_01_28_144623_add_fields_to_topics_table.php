@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::table('topics', function (Blueprint $table) {
             if (!Schema::hasColumn('topics', 'parent_id')) {
-                $table->foreignId('parent_id')->nullable()->constrained('topics')->onDelete('cascade');
+                $table->foreignId('parent_id')->nullable()->constrained('topics')->onDelete('cascade')->after('discipline_id');
             }
             if (!Schema::hasColumn('topics', 'is_completed')) {
                 $table->boolean('is_completed')->default(false);
