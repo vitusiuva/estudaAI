@@ -5,20 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Revision extends Model
+class MockExam extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'user_id',
-        'topic_id',
-        'scheduled_date',
-        'interval_days',
-        'status',
-    ];
+    protected $fillable = [\'user_id\', \'title\', \'exam_type\', \'exam_board\', \'date\', \'duration_minutes\', \'total_score\'];
 
     protected $casts = [
-        'scheduled_date' => 'date',
+        \'date\' => \'date\',
     ];
 
     public function user()
@@ -26,8 +20,8 @@ class Revision extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function topic()
+    public function results()
     {
-        return $this->belongsTo(Topic::class);
+        return $this->hasMany(MockExamResult::class);
     }
 }

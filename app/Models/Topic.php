@@ -11,7 +11,9 @@ class Topic extends Model
 
     protected $fillable = [
         'discipline_id',
+        'parent_id',
         'name',
+        'is_completed',
         'is_studied',
         'is_revised_1x',
         'is_revised_2x',
@@ -22,6 +24,16 @@ class Topic extends Model
         return $this->belongsTo(Discipline::class);
     }
 
+    public function parent()
+    {
+        return $this->belongsTo(Topic::class, 'parent_id');
+    }
+
+    public function subtopics()
+    {
+        return $this->hasMany(Topic::class, 'parent_id');
+    }
+
     public function studyLogs()
     {
         return $this->hasMany(StudyLog::class);
@@ -30,5 +42,10 @@ class Topic extends Model
     public function revisions()
     {
         return $this->hasMany(Revision::class);
+    }
+
+    public function materials()
+    {
+        return $this->hasMany(Material::class);
     }
 }
