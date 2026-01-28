@@ -8,6 +8,7 @@ use App\Http\Controllers\TopicController;
 use App\Http\Controllers\RevisionController;
 use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\StudyCycleController;
+use App\Http\Controllers\MockExamController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -38,6 +39,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/cycles/{cycle}/disciplines', [StudyCycleController::class, 'addDiscipline'])->name('cycles.add-discipline');
     Route::patch('/cycles/{cycle}/toggle-active', [StudyCycleController::class, 'toggleActive'])->name('cycles.toggle-active');
     Route::delete('/cycles/{cycle}', [StudyCycleController::class, 'destroy'])->name('cycles.destroy');
+    
+    // Simulados
+    Route::resource('mock-exams', MockExamController::class);
+    Route::post('/mock-exams/{mock_exam}/results', [MockExamController::class, 'addResult'])->name('mock-exams.add-result');
     
     // Revisões
     Route::get('/revisions', [RevisionController::class, 'index'])->name('revisions.index');
