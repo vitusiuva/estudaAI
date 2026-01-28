@@ -1,70 +1,46 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between">
-            <div>
-                <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Minhas Revisões</h2>
-                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Mantenha o conhecimento fresco com revisões programadas.</p>
-            </div>
-        </div>
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Sistema de Revisões</h2>
+        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Gerencie suas revisões programadas (1, 7, 15, 30 e 60 dias).</p>
     </x-slot>
 
-    <div class="py-6">
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                    <thead class="bg-gray-50 dark:bg-gray-900/50">
-                        <tr>
-                            <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Tópico / Disciplina</th>
-                            <th scope="col" class="px-6 py-4 text-center text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Data Agendada</th>
-                            <th scope="col" class="px-6 py-4 text-center text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
-                            <th scope="col" class="px-6 py-4 text-right text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-100 dark:divide-gray-700">
-                        @forelse($revisions as $revision)
-                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm font-bold text-gray-900 dark:text-white">{{ $revision->topic->name }}</div>
-                                <div class="text-xs text-gray-500 dark:text-gray-400">{{ $revision->topic->discipline->name }}</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-center">
-                                <div class="text-sm text-gray-900 dark:text-white {{ $revision->scheduled_date->isPast() && $revision->status == 'pendente' ? 'text-red-600 font-bold' : '' }}">
-                                    {{ $revision->scheduled_date->format('d/m/Y') }}
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-center">
-                                @if($revision->status == 'concluida')
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">Concluída</span>
-                                @elseif($revision->scheduled_date->isPast())
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">Atrasada</span>
-                                @else
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">Pendente</span>
-                                @endif
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                @if($revision->status == 'pendente')
-                                    <form action="{{ route('revisions.update', $revision) }}" method="POST">
-                                        @csrf
-                                        @method('PATCH')
-                                        <button type="submit" class="inline-flex items-center px-3 py-1.5 rounded-lg bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-700 transition-all">
-                                            Marcar como Feita
-                                        </button>
-                                    </form>
-                                @else
-                                    <span class="text-gray-400 italic text-xs">Finalizada</span>
-                                @endif
-                            </td>
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="4" class="px-6 py-12 text-center">
-                                <p class="text-gray-500 dark:text-gray-400">Nenhuma revisão agendada no momento.</p>
-                            </td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
+    <div class="py-6 space-y-6">
+        {{-- Abas de Filtro --}}
+        <div class="flex space-x-4 border-b border-gray-200 dark:border-gray-700">
+            <button onclick="showTab(\'today\')" id="tab-today" class="px-4 py-2 text-sm font-bold border-b-2 border-indigo-500 text-indigo-600 dark:text-indigo-400">Para Hoje ({{ $revisionsToday->count() }})</button>
+            <button onclick="showTab(\'overdue\')" id="tab-overdue" class="px-4 py-2 text-sm font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">Atrasadas ({{ $revisionsOverdue->count() }})</button>
+            <button onclick="showTab(\'completed\')" id="tab-completed" class="px-4 py-2 text-sm font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">Concluídas</button>
+        </div>
+
+        {{-- Conteúdo das Abas --}}
+        <div id="content-today" class="tab-content">
+            @include(\'revisions.partials.list\', [\'revisions\' => $revisionsToday, \'emptyMessage\' => \'Nenhuma revisão para hoje. Bom trabalho!\'])
+        </div>
+
+        <div id="content-overdue" class="tab-content hidden">
+            @include(\'revisions.partials.list\', [\'revisions\' => $revisionsOverdue, \'emptyMessage\' => \'Nenhuma revisão atrasada. Você está em dia!\'])
+        </div>
+
+        <div id="content-completed" class="tab-content hidden">
+            @include(\'revisions.partials.list\', [\'revisions\' => $revisionsCompleted, \'isCompleted\' => true, \'emptyMessage\' => \'Nenhuma revisão concluída ainda.\'])
         </div>
     </div>
+
+    @push(\'scripts\')
+    <script>
+        function showTab(tab) {
+            document.querySelectorAll(\'.tab-content\').forEach(el => el.classList.add(\'hidden\'));
+            document.getElementById(\'content-\' + tab).classList.remove(\'hidden\');
+            
+            document.querySelectorAll(\'[id^="tab-"]\').forEach(el => {
+                el.classList.remove(\'border-indigo-500\', \'text-indigo-600\', \'dark:text-indigo-400\');
+                el.classList.add(\'border-transparent\', \'text-gray-500\', \'dark:text-gray-400\');
+            });
+            
+            const activeTab = document.getElementById(\'tab-\' + tab);
+            activeTab.classList.remove(\'border-transparent\', \'text-gray-500\', \'dark:text-gray-400\');
+            activeTab.classList.add(\'border-indigo-500\', \'text-indigo-600\', \'dark:text-indigo-400\');
+        }
+    </script>
+    @endpush
 </x-app-layout>

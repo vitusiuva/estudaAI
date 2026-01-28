@@ -11,31 +11,48 @@ class RevisionController extends Controller
 {
     public function index()
     {
-        $user = Auth::user();
+        $today = Carbon::today();
         
-        $revisions = Revision::whereHas(\'topic.discipline.plan\', function($query) use ($user) {
-            $query->where(\'user_id\', $user->id);
-        })
-        ->with(\'topic.discipline\')
-        ->orderBy(\'scheduled_date\', \'asc\')
-        ->get();
+        $revisionsToday = Revision::where('user_id', Auth::id())
+            ->where('status', 'pendente')
+            ->whereDate('scheduled_date', $today)
+            ->with('topic.discipline')
+            ->get();
 
-        return view(\'revisions.index\', compact(\'revisions\'));
+        $revisionsOverdue = Revision::where('user_id', Auth::id())
+            ->where('status', 'pendente')
+            ->whereDate('scheduled_date', '<', $today)
+            ->with('topic.discipline')
+            ->get();
+
+        $revisionsCompleted = Revision::where('user_id', Auth::id())
+            ->where('status', 'concluida')
+            ->with('topic.discipline')
+            ->orderBy('updated_at', 'desc')
+            ->limit(20)
+            ->get();
+
+        return view('revisions.index', compact('revisionsToday', 'revisionsOverdue', 'revisionsCompleted'));
     }
 
     public function update(Request $request, Revision $revision)
     {
-        if ($revision->topic->discipline->plan->user_id !== Auth::id()) abort(403);
+        if ($revision->user_id !== Auth::id()) abort(403);
         
-        $revision->update([\'status\' => \'concluida\']);
+        $revision->update(['status' => 'concluida']);
         
-        // Se for a primeira revisão (24h), marca o tópico como revisado 1x
-        if ($revision->topic->revisions()->where(\'status\', \'concluida\')->count() == 1) {
-            $revision->topic->update([\'is_revised_1x\' => true]);
-        } else {
-            $revision->topic->update([\'is_revised_2x\' => true]);
+        // Atualizar contagem de revisões no tópico
+        $completedCount = Revision::where('topic_id', $revision->topic_id)
+            ->where('status', 'concluida')
+            ->count();
+
+        if ($completedCount >= 1) {
+            $revision->topic->update(['is_revised_1x' => true]);
+        }
+        if ($completedCount >= 2) {
+            $revision->topic->update(['is_revised_2x' => true]);
         }
 
-        return back()->with(\'success\', \'Revisão concluída!\');
+        return back()->with('success', 'Revisão concluída!');
     }
 }
