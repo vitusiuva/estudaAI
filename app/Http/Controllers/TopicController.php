@@ -14,6 +14,7 @@ class TopicController extends Controller
         $request->validate([
             'discipline_id' => 'required|exists:disciplines,id',
             'name' => 'required|string|max:255',
+            'parent_id' => 'nullable|exists:topics,id',
         ]);
 
         $discipline = Discipline::findOrFail($request->discipline_id);
@@ -22,6 +23,17 @@ class TopicController extends Controller
         Topic::create($request->all());
 
         return back()->with('success', 'Tópico adicionado!');
+    }
+
+    public function toggleComplete(Topic $topic)
+    {
+        if ($topic->discipline->plan->user_id !== Auth::id()) abort(403);
+        
+        $topic->update([
+            'is_completed' => !$topic->is_completed
+        ]);
+
+        return back()->with('success', 'Status do tópico atualizado!');
     }
 
     public function destroy(Topic $topic)

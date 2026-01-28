@@ -6,6 +6,7 @@ use App\Http\Controllers\DisciplineController;
 use App\Http\Controllers\StudyLogController;
 use App\Http\Controllers\TopicController;
 use App\Http\Controllers\RevisionController;
+use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -23,7 +24,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     
     // Tópicos e Estudos
     Route::resource('topics', TopicController::class);
+    Route::patch('/topics/{topic}/toggle-complete', [TopicController::class, 'toggleComplete'])->name('topics.toggle-complete');
     Route::resource('study-logs', StudyLogController::class);
+    
+    // Materiais
+    Route::post('/materials', [MaterialController::class, 'store'])->name('materials.store');
+    Route::delete('/materials/{material}', [MaterialController::class, 'destroy'])->name('materials.destroy');
     
     // Revisões
     Route::get('/revisions', [RevisionController::class, 'index'])->name('revisions.index');
