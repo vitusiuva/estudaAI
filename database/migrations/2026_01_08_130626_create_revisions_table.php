@@ -14,6 +14,7 @@ return new class extends Migration
             $table->foreignId('topic_id')->constrained()->onDelete('cascade');
             $table->date('scheduled_date');
             $table->enum('status', ['pendente', 'concluida', 'atrasada', 'ignorada'])->default('pendente');
+            $table->timestamp('completed_at')->nullable();
             $table->timestamps();
         });
     }
