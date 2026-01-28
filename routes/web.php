@@ -7,6 +7,7 @@ use App\Http\Controllers\StudyLogController;
 use App\Http\Controllers\TopicController;
 use App\Http\Controllers\RevisionController;
 use App\Http\Controllers\MaterialController;
+use App\Http\Controllers\StudyCycleController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -30,6 +31,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Materiais
     Route::post('/materials', [MaterialController::class, 'store'])->name('materials.store');
     Route::delete('/materials/{material}', [MaterialController::class, 'destroy'])->name('materials.destroy');
+    
+    // Ciclos de Estudo
+    Route::get('/cycles', [StudyCycleController::class, 'index'])->name('cycles.index');
+    Route::post('/cycles', [StudyCycleController::class, 'store'])->name('cycles.store');
+    Route::post('/cycles/{cycle}/disciplines', [StudyCycleController::class, 'addDiscipline'])->name('cycles.add-discipline');
+    Route::patch('/cycles/{cycle}/toggle-active', [StudyCycleController::class, 'toggleActive'])->name('cycles.toggle-active');
+    Route::delete('/cycles/{cycle}', [StudyCycleController::class, 'destroy'])->name('cycles.destroy');
     
     // Revisões
     Route::get('/revisions', [RevisionController::class, 'index'])->name('revisions.index');
